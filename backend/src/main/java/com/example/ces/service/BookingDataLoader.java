@@ -163,7 +163,7 @@ public class BookingDataLoader implements CommandLineRunner {
     }
 
     private void loadDummyBookingsWithTickets() {
-        System.out.println("\n🎬 Loading dummy bookings - each will create tickets in the tickets table...");
+        System.out.println("\n Loading dummy bookings - each will create tickets in the tickets table...");
 
         List<User> users = createDummyUsers();
         List<Showtime> existingShowtimes = showtimeRepository.findAll();
@@ -260,10 +260,11 @@ public class BookingDataLoader implements CommandLineRunner {
                     Arrays.asList(TicketType.SENIOR),
                     BookingStatus.Confirmed, "Dark Knight - 1:30 PM booking 3");
         } else {
-            System.out.println("⚠️  Dark Knight 1:30 PM showtime not found - skipping manual bookings");
+            System.out.println("Dark Knight 1:30 PM showtime not found - skipping manual bookings");
         }
     }
 
+    // Create new booking and populate the tickets
     private void createBookingAndPopulateTickets(User user, Showtime showtime,
             List<String> seatNumbers,
             List<TicketType> ticketTypes,
@@ -296,15 +297,16 @@ public class BookingDataLoader implements CommandLineRunner {
                 bookingService.updateBookingStatus(savedBooking.getId(), status);
             }
 
-            System.out.println("✅ Booking " + savedBooking.getBookingId() + " created");
+            System.out.println("Booking " + savedBooking.getBookingId() + " created");
             System.out.println("   Added " + savedBooking.getTickets().size() + " tickets to tickets table");
 
         } catch (Exception e) {
-            System.err.println("❌ Error creating booking: " + e.getMessage());
+            System.err.println("Error creating booking: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+    // Update all existing showtimes with new booking
     public void syncShowtimeTakenSeatsWithBookings() {
         List<Showtime> allShowtimes = showtimeRepository.findAll();
         for (Showtime showtime : allShowtimes) {
@@ -334,20 +336,21 @@ public class BookingDataLoader implements CommandLineRunner {
         bookingRepository.saveAll(allBookings);
     }
 
+    // FOR TESTING, verifying ticket table is populated
     private void verifyTicketsTable() {
         System.out.println("\n=== TICKETS TABLE VERIFICATION ===");
 
         List<Ticket> allTickets = ticketRepository.findAll();
         List<Booking> allBookings = bookingRepository.findAll();
 
-        System.out.println("📊 Tickets in tickets table: " + allTickets.size());
-        System.out.println("📊 Bookings in bookings table: " + allBookings.size());
+        System.out.println("Tickets in tickets table: " + allTickets.size());
+        System.out.println("Bookings in bookings table: " + allBookings.size());
 
         int ticketsFromBookings = allBookings.stream()
                 .mapToInt(booking -> booking.getTickets() != null ? booking.getTickets().size() : 0)
                 .sum();
 
-        System.out.println("📊 Tickets referenced by bookings: " + ticketsFromBookings);
+        System.out.println("Tickets referenced by bookings: " + ticketsFromBookings);
 
         int linkedTickets = 0;
         int orphanedTickets = 0;
@@ -363,16 +366,17 @@ public class BookingDataLoader implements CommandLineRunner {
             }
         }
 
-        System.out.println("✅ Properly linked tickets: " + linkedTickets);
-        System.out.println("⚠️  Orphaned tickets: " + orphanedTickets);
+        System.out.println("Properly linked tickets: " + linkedTickets);
+        System.out.println(" Orphaned tickets: " + orphanedTickets);
 
         if (orphanedTickets == 0 && allTickets.size() == ticketsFromBookings) {
-            System.out.println("🎉 PERFECT: All tickets in tickets table are from bookings!");
+            System.out.println("PERFECT: All tickets in tickets table are from bookings!");
         }
 
         System.out.println("=====================================\n");
     }
 
+    // To replace old seat layout
     private void updateExistingShowtimesWithSeats() {
         System.out.println("Updating existing showtimes with 10x10 seat layout...");
 
@@ -399,7 +403,8 @@ public class BookingDataLoader implements CommandLineRunner {
             showtimeRepository.saveAll(allShowtimes);
         }
     }
-
+    
+    // Utilize createUser
     private List<User> createDummyUsers() {
         if (userRepository.count() == 0) {
             List<User> users = Arrays.asList(
@@ -412,6 +417,7 @@ public class BookingDataLoader implements CommandLineRunner {
         }
     }
 
+    // Method to create a new user
     private User createUser(String email, String firstName, String lastName) {
         User user = new User();
         user.setEmail(email);
@@ -423,6 +429,7 @@ public class BookingDataLoader implements CommandLineRunner {
         return user;
     }
 
+    // Create 10x10 seat array
     private List<String> create10x10SeatLayout() {
         List<String> seats = new ArrayList<>();
         for (char row = 'A'; row <= 'J'; row++) {

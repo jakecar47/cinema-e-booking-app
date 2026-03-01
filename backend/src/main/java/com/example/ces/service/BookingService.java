@@ -9,7 +9,7 @@ import com.example.ces.repository.PromotionRepository;
 import com.example.ces.repository.TicketRepository;
 import com.example.ces.repository.UserRepository;
 import com.example.ces.repository.ShowtimeRepository;
-import com.example.ces.repository.MovieRepository; // ⭐ ADDED
+import com.example.ces.repository.MovieRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,8 +30,6 @@ public class BookingService {
     private final PaymentCardRepository paymentCardRepository;
     private final PromotionRepository promotionRepository;
     private final EmailService emailService;
-
-    // ⭐ ADDED
     private final MovieRepository movieRepository;
 
     public BookingService(
@@ -42,7 +40,7 @@ public class BookingService {
             PaymentCardRepository paymentCardRepository,
             PromotionRepository promotionRepository,
             EmailService emailService,
-            MovieRepository movieRepository // ⭐ ADDED
+            MovieRepository movieRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.ticketRepository = ticketRepository;
@@ -51,9 +49,10 @@ public class BookingService {
         this.paymentCardRepository = paymentCardRepository;
         this.promotionRepository = promotionRepository;
         this.emailService = emailService;
-        this.movieRepository = movieRepository; // ⭐ ADDED
+        this.movieRepository = movieRepository; 
     }
 
+    // Create a booking (POST)
     public Booking createBooking(BookingRequestDTO request) {
         if (request == null)
             throw new IllegalArgumentException("BookingRequestDTO is required");
@@ -81,6 +80,7 @@ public class BookingService {
 
         double basePrice = showtime.getBasePrice();
 
+        // Determine ticket type
         for (BookingRequestDTO.TicketSelectionDTO sel : ticketSelections) {
             seatNumbers.add(sel.getSeatNumber());
             ticketTypes.add(sel.getTicketType());
@@ -102,6 +102,7 @@ public class BookingService {
         booking.setNumberOfTickets(seatNumbers.size());
         booking.setStatus(BookingStatus.Confirmed);
 
+        // Set payment card details
         if (request.getPaymentCard() != null) {
             PaymentCardDTO cardDTO = request.getPaymentCard();
             PaymentCard card = new PaymentCard();
@@ -122,6 +123,7 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
 
+        // Create ticket and set values
         List<Ticket> tickets = new ArrayList<>();
         for (int i = 0; i < seatNumbers.size(); i++) {
             Ticket ticket = new Ticket();
@@ -161,7 +163,7 @@ public class BookingService {
 
         Booking finalBooking = bookingRepository.save(savedBooking);
 
-        // ⭐ FIXED MOVIE TITLE LOOKUP (no getMovie())
+        // FIXED MOVIE TITLE LOOKUP (no getMovie())
         String movieTitle = "Movie";
         try {
             if (showtime.getMovieId() != null) {
@@ -173,7 +175,7 @@ public class BookingService {
             System.err.println("Could not fetch movie title for showtime " + showtime.getId());
         }
 
-        // ⭐ SEND EMAIL
+        // SEND EMAIL
         try {
             String userName = user.getName() != null ? user.getName() : user.getEmail();
             String showtimeInfo = showtime.getDate() + " at " + showtime.getTime();
@@ -188,9 +190,9 @@ public class BookingService {
                     seatsJoined,
                     finalBooking.getTotalPrice());
 
-            System.out.println("✓ Sent booking confirmation email to " + user.getEmail());
+            System.out.println("Sent booking confirmation email to " + user.getEmail());
         } catch (Exception e) {
-            System.err.println("⚠ Failed to send booking confirmation email: " + e.getMessage());
+            System.err.println("Failed to send booking confirmation email: " + e.getMessage());
         }
 
         return finalBooking;
@@ -220,7 +222,7 @@ public class BookingService {
             // Delete booking
             bookingRepository.deleteById(bookingId);
 
-            System.out.println("✅ Deleted booking and released seats from takenSeats: " + seatNumbers);
+            System.out.println("Deleted booking and released seats from takenSeats: " + seatNumbers);
         }
     }
 
@@ -313,7 +315,7 @@ public class BookingService {
         }
 
         showtimeRepository.save(showtime);
-        System.out.println("✅ Synced showtime " + mongoShowtimeId + " takenSeats with actual bookings");
+        System.out.println("Synced showtime " + mongoShowtimeId + " takenSeats with actual bookings");
     }
 
     /**
