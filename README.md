@@ -55,10 +55,10 @@ git clone https://github.com/jakecar47/cinema-e-booking-app.git
 cd cinema-e-booking-app
 
 Frontend setup (runs on http://localhost:3000):
-cd cinema-e-booking-app
-npm install
-npm run dev
+- cd cinema-e-booking-app
+- npm install
+- npm run dev
 
 Backend setup (runs on http://localhost:8080):
-cd backend
-mvn spring-boot:run
+- cd backend
+- mvn spring-boot:run
